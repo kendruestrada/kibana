@@ -640,6 +640,49 @@ function discoverController(
     $scope.minimumVisibleRows = $scope.hits;
   };
 
+
+  $scope.descargaCsv = function () {
+    const  result = $scope.rows.map(a => a._source);
+    const csv = jsontocsv(result);
+    const data = csv;
+    const blob = new Blob([data], { type: 'text/csv' });
+    const url = $window.URL || $window.webkitURL;
+    $scope.fileUrl = url.createObjectURL(blob);
+    window.open($scope.fileUrl);
+
+  };
+
+
+
+  function jsontocsv(objArray) {
+    const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+    let str = '';
+    let line = '';
+
+    for (const index in array[0]) {
+      if ({}.hasOwnProperty.call(array[0], index)) {
+        const value = index + '';
+        line += '"' + value.replace(/"/g, '""') + '",';
+      }
+    }
+    line = line.slice(0, -1);
+    str += line + '\r\n';
+
+    for (let i = 0; i < array.length; i++) {
+      let line = '';
+      for (const index in array[i]) {
+        if ({}.hasOwnProperty.call(array[i], index)) {
+          line += array[i][index] + ',';
+        }
+      }
+      line = line.slice(0, -1);
+      str += line + '\r\n';
+    }
+    return str;
+  }
+
+
+
   function setupVisualization() {
     // If no timefield has been specified we don't create a histogram of messages
     if (!$scope.opts.timefield) return;
